@@ -1,35 +1,103 @@
-import React, { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import React,{useContext, useEffect, useState} from 'react'
+import { NavLink, useParams,useHistory } from 'react-router-dom';
+import { updatedata } from './context/contextProvider';
 
-const Register = () => {
 
-  const [inpval,setINP] = useState({
-    name:"",
-    email:"",
-    age:"",
-    mobile:"",
-    work:"",
-    address:"",
-    desc:""
+const Edit = () => {
 
-  })
+  // const [getuserdata, setUserdata] = useState([]);
+  // console.log(getuserdata);
 
-  const setdata = (e)=>{
-    console.log(e.target.value);
-    const {name,value} =e.target;
-    setINP((preval) => {
-      return{
-        ...preval,
-        [name]:value
+  const {updata,setUpdata} = useContext(updatedata)
 
-      }
-    })
-  } 
+  const history = useHistory("");
+
+
+    const [inpval,setINP] = useState({
+        name:"",
+        email:"",
+        age:"",
+        mobile:"",
+        work:"",
+        address:"",
+        desc:""
+    
+      })
+    
+      const setdata = (e)=>{
+        console.log(e.target.value);
+        const {name,value} =e.target;
+        setINP((preval) => {
+          return{
+            ...preval,
+            [name]:value
+    
+          }
+        })
+      } 
+
+
+      
+  const {id} =useParams("");
+  console.log(id) 
+
+  const getdata = async () => {
+      
+  const res = await fetch(`/getuser/${id}` ,{
+    method:"GET",
+    headers:{
+      "content-type":"application/json"
+    }
+  });
+
+  const data = await res.json();
+  console.log(data);
+
+  if(res.status === 422 || !data){
+    console.log("error");
+  }else{
+      setINP(data)
+     console.log("get data");
+    } 
+  }
+    
+  useEffect(()=>{
+  getdata();
+   },[])
+
+  const updateduser = (e) =>{
+    e.preventDefault();
+
+    const {name,email,work,address,mobile,desc,age} = inpval;
+
+    const res2 =  fetch(`/updateuser/${id}`, {
+      method:"PATCH",
+      headers: {
+         "content-typ": "application/json"
+      },
+      body:json.stringify({
+        name,email,work,address,mobile,desc,age
+      })
+    });
+
+    const data2 =  res.json();
+    console.log(data2);
+
+    if(res2.status === 422 || !data2){
+      alert("fill the data")
+    }else{
+      alert("data  added");
+      history.push("/")
+      setUpata(data);
+    }
+  }
+  
 
 
   return (
-    <div className='container'>
-      <NavLink to="/">home</NavLink>
+    <div>
+        <div className='container'>
+      <NavLink to="/">home2</NavLink>
       <form className='mt-4'>
         <div className='row'>
         <div class="mb-3 col-lg-6 col-md-6 col-12">
@@ -60,11 +128,12 @@ const Register = () => {
          <label for="exampleInputPassword1" class="form-label">Description</label>
          <textarea name="desc" value={inpval.desc} onChange={setdata} className='form-control' cols="30" rows="5"></textarea>
        </div>
-       <button type="submit" class="btn btn-primary">Submit</button>
+       <button type="submit" onClick={updateuser} class="btn btn-primary">Submit</button>
        </div>
       </form>
+    </div>
     </div>
   )
 }
 
-export default Register
+export default Edit
